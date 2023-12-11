@@ -25,8 +25,6 @@ public class RegistrationResource {
         if(json.length() > 0) {
             JsonReader jsonReader = Json.createReader(new StringReader(json));
             JsonObject object = jsonReader.readObject();
-//            String login = object.getString("login");
-//            String password = object.getString("password");
             String result;
 
             if (userChecker.registration(object.getString("login"), object.getString("password"))) {
@@ -37,6 +35,7 @@ public class RegistrationResource {
                 result = ResponseUtils.failResult;
             }
 
+            jsonReader.close();
             return ResponseUtils.accessResponseWithEntity(200, result);
         } else {
             return ResponseUtils.accessResponse(204);

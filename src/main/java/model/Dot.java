@@ -8,13 +8,17 @@ public class Dot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "x")
     private Double x;
+    @Column(name = "y")
     private Double y;
+    @Column(name = "r")
     private Double r;
+    @Column(name = "result")
     private boolean result;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user")
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     private String time;
 
@@ -55,15 +59,15 @@ public class Dot {
         return id;
     }
 
-    public String getResultString(){
-        if(result) return "Точка попала";
-        else return "Точка не попала";
-    }
-
-    public String getResultClass(){
-        if(result) return "success";
-        else return "fail";
-    }
+//    public String getResultString(){
+//        if(result) return "Точка попала";
+//        else return "Точка не попала";
+//    }
+//
+//    public String getResultClass(){
+//        if(result) return "success";
+//        else return "fail";
+//    }
     public void setX(Double x){
         this.x = x;
     }
@@ -73,7 +77,7 @@ public class Dot {
     public void setR(Double r){
         this.r = r;
     }
-    public void setOwner(User user){
+    public void setUser(User user){
         this.user = user;
     }
     public void setResult(boolean isInArea){

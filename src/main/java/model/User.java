@@ -12,13 +12,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(name = "login", unique = true)
     private String login;
+
+    @Column(name = "password")
     private String password;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<Dot> dots;
-
-
 
     public User(){
 
@@ -27,11 +29,10 @@ public class User {
     public User(String login, String password){
         this.login = login;
         this.password = password;
-
     }
 
     public void addDot(Dot newDot){
-        newDot.setOwner(this);
+        newDot.setUser(this);
         dots.add(newDot);
     }
 
@@ -40,6 +41,10 @@ public class User {
     }
     public String getLogin() {
         return login;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public List<Dot> getDots() {

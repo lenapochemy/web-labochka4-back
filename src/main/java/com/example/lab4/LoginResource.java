@@ -24,8 +24,7 @@ public class LoginResource {
         if(json.length() > 0) {
             JsonReader jsonReader = Json.createReader(new StringReader(json));
             JsonObject object = jsonReader.readObject();
-//            String login = object.getString("login");
-//            String password = object.getString("password");
+
             String result;
             if (userChecker.login(object.getString("login"), object.getString("password"))) {
                 //System.out.println("login ok");
@@ -35,6 +34,7 @@ public class LoginResource {
                 result = ResponseUtils.failResult;
             }
 
+            jsonReader.close();
             return ResponseUtils.accessResponseWithEntity(200, result);
 
         } else {

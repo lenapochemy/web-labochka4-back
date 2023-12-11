@@ -17,24 +17,26 @@ public class DotBean {
     Transaction transaction = null;
     private final SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
-    public void addDot(Double x, Double y, Double r, User user){
+    public boolean addDot(Double x, Double y, Double r, User user){
         Dot dot = new Dot(x, y, r, user);
         dot.setResult(isInArea(dot));
         Date d = new Date();
         dot.setTime(formatter.format(d));
-        addDotToDB(dot);
+        return addDotToDB(dot);
     }
 
-    private void addDotToDB(Dot dot){
+    private boolean addDotToDB(Dot dot){
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.persist(dot);
             transaction.commit();
             System.out.println("добавили точку в бд");
+            return true;
         } catch (Exception e){
-            if(transaction != null) transaction.rollback();
+            //if(transaction != null) transaction.rollback();
             e.printStackTrace();
             System.out.println("не добавили точку в бд");
+            return false;
         }
     }
 
@@ -58,8 +60,8 @@ public class DotBean {
         Double r = dot.getR();
 
         return ((0 <= x && x <= r && 0 <= y && y <= r/2) ||
-                (x <= 0 && y >= 0 && y <= x - r/2) ||
-                (x * x + y * y <= r * r && x >= 0 && y <= 0)
+                (x <= 0 && y >= 0 && y <= x + r/2) ||
+                (x * x + y * y <= (r/2) * (r/2) && x >= 0 && y <= 0)
                 );
 
     }

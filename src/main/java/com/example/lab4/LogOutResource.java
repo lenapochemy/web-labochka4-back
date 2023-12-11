@@ -1,5 +1,6 @@
 package com.example.lab4;
 
+import database.DotChecker;
 import database.UserChecker;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.GET;

@@ -42,6 +42,7 @@ public class UserBean {
 //            if(transaction != null){
 //                transaction.rollback();
 //            }
+            user = null;
         }
         return user;
     }
