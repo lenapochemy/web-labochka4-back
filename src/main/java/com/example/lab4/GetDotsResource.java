@@ -50,6 +50,8 @@ public class GetDotsResource {
                     .add("y", dot.getY())
                     .add("r", dot.getR())
                     .add("result", dot.getResult())
+                    .add("resultClass", dot.getResultClass())
+                    .add("resultString", dot.getResultString())
                     .add("time", dot.getTime())
             );
         }

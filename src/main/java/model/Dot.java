@@ -59,15 +59,15 @@ public class Dot {
         return id;
     }
 
-//    public String getResultString(){
-//        if(result) return "Точка попала";
-//        else return "Точка не попала";
-//    }
-//
-//    public String getResultClass(){
-//        if(result) return "success";
-//        else return "fail";
-//    }
+    public String getResultString(){
+        if(result) return "Точка попала";
+        else return "Точка не попала";
+    }
+
+    public String getResultClass(){
+        if(result) return "success";
+        else return "fail";
+    }
     public void setX(Double x){
         this.x = x;
     }

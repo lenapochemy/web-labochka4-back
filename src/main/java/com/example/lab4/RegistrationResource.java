@@ -22,24 +22,22 @@ public class RegistrationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registration(String json){
         System.out.println("I want to die");
-        if(json.length() > 0) {
+       // if(json.length() > 0) {
             JsonReader jsonReader = Json.createReader(new StringReader(json));
             JsonObject object = jsonReader.readObject();
             String result;
 
             if (userChecker.registration(object.getString("login"), object.getString("password"))) {
-               // System.out.println("reg ok");
                 result = ResponseUtils.successResult;
             } else {
-                //System.out.println("reg fail");
                 result = ResponseUtils.failResult;
             }
 
             jsonReader.close();
             return ResponseUtils.accessResponseWithEntity(200, result);
-        } else {
-            return ResponseUtils.accessResponse(204);
-        }
+//        } else {
+//            return ResponseUtils.accessResponse(204);
+//        }
 
     }
 }

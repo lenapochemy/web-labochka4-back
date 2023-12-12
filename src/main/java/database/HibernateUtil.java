@@ -11,8 +11,6 @@ public class HibernateUtil {
 
     public static SessionFactory sessionFactory;
     public static StandardServiceRegistry registry;
-//    private HibernateUtil(){
-//    }
 
     public static SessionFactory getSessionFactory() {
         if(sessionFactory == null){
@@ -33,9 +31,4 @@ public class HibernateUtil {
         return sessionFactory;
     }
 
-    public static void shutdown(){
-        if(registry != null){
-            StandardServiceRegistryBuilder.destroy(registry);
-        }
-    }
 }

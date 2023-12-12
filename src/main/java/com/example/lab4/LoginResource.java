@@ -21,7 +21,7 @@ public class LoginResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response logIn(String json){
-        if(json.length() > 0) {
+       // if(json.length() > 0) {
             JsonReader jsonReader = Json.createReader(new StringReader(json));
             JsonObject object = jsonReader.readObject();
 
@@ -37,9 +37,9 @@ public class LoginResource {
             jsonReader.close();
             return ResponseUtils.accessResponseWithEntity(200, result);
 
-        } else {
-            return ResponseUtils.accessResponse(204);
-        }
+//        } else {
+//            return ResponseUtils.accessResponse(204);
+//        }
 
     }
 }
