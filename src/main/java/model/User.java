@@ -19,6 +19,8 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    private String token;
+
     @OneToMany(mappedBy = "user")
     private List<Dot> dots;
 
@@ -50,6 +52,9 @@ public class User {
     public List<Dot> getDots() {
         return dots;
     }
+    public String getToken(){
+        return token;
+    }
 
     public void setDots(List<Dot> dots) {
         this.dots = dots;
@@ -60,5 +65,8 @@ public class User {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+    public void setToken(String token){
+        this.token = token;
     }
 }

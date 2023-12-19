@@ -9,6 +9,8 @@
         <property name="connection.password">Ph4YbHYFFztmodS5</property>
 
         <property name="show_sql">true</property>
+<!--        <property name="format_sql">true</property>-->
+<!--        <property name="generate_statistics">true</property>-->
         <mapping class="model.Dot"/>
         <mapping class="model.User"/>
     </session-factory>

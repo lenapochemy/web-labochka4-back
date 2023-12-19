@@ -1,19 +1,19 @@
 package database;
 
 import jakarta.ejb.Stateful;
-import jakarta.ejb.StatefulTimeout;
 import model.User;
 
 import jakarta.ejb.EJB;
-import jakarta.ejb.Stateless;
+import org.hibernate.JDBCException;
 
 @Stateful
 public class UserChecker {
     @EJB
     private UserBean userBean;
     private User currentUser = null;
+    TokenUtils tokenUtils = new TokenUtils();
 
-    public boolean registration(String login, String password){
+    public boolean registration(String login, String password) throws JDBCException {
         if(userBean.checkLogin(login)) return false;
 
         User user = userBean.addUser(login, password);
@@ -21,30 +21,37 @@ public class UserChecker {
         return true;
     }
 
-    public boolean login(String login, String password){
-        if(!userBean.checkLogin(login)) return false;
-
+    public boolean login(String login, String password)throws JDBCException{
+        //if(!userBean.checkLogin(login)) return false;
         if(userBean.checkUser(login, password))  {
-            currentUser = new User(login, password);
-            System.out.println("currentUser = " +currentUser.getLogin());
+            currentUser = userBean.findUserByLogin(login);
+            String token = tokenUtils.generateToken(currentUser);
+            currentUser.setToken(token);
+            userBean.updateUser(currentUser);
+            //System.out.println("currentUser = " +currentUser.getLogin());
             return true;
         }
-            else return false;
+        else return false;
     }
 
-    public boolean logout(){
+
+    public boolean logout(User user) throws JDBCException{
         //if(currentUser == null) return false;
-        currentUser = null;
-        System.out.println("currentUser = null");
+        user.setToken(null);
+        userBean.updateUser(user);
+//        System.out.println("currentUser = null");
         return true;
     }
 
-    public User getUserByLogin(String login){
-        User user = userBean.findUser(login);
-        return user;
+    public User getUserByLogin(String login) throws JDBCException{
+        return userBean.findUserByLogin(login);
     }
 
-    public User getCurrentUser() {
-        return currentUser;
+    public User getUserByToken(String token) throws JDBCException{
+        return userBean.findUserByToken(token);
     }
+
+//    public User getCurrentUser() {
+//        return currentUser;
+//    }
 }
