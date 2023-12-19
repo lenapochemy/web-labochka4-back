@@ -2,8 +2,10 @@ package com.example.lab4;
 
 import database.DotChecker;
 import database.UserChecker;
+import exceptions.DBException;
 import jakarta.ejb.EJB;
 import jakarta.json.*;
+import jakarta.json.stream.JsonParsingException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -38,13 +40,14 @@ public class DotsResource {
             String token = object.getString("userToken");
             jsonReader.close();
             User user = userChecker.getUserByToken(token);
-
             if (user == null) return ResponseUtils.accessResponse(403);
 
             if (dotChecker.addDot(x, y, r, user)) {
-                return ResponseUtils.accessResponseWithEntity(200, ResponseUtils.successResult);
-            } else return ResponseUtils.accessResponseWithEntity(501, ResponseUtils.failResult);
-        } catch (JDBCException e){
+                return ResponseUtils.accessResponse(200);
+            } else return ResponseUtils.accessResponse(503);
+        } catch (JsonParsingException e){
+            return ResponseUtils.accessResponse(400);
+        } catch (DBException e){
             return ResponseUtils.accessResponse(503);
         }
     }
@@ -76,8 +79,6 @@ public class DotsResource {
                         .add("y", dot.getY())
                         .add("r", dot.getR())
                         .add("result", dot.getResult())
-                        .add("resultClass", dot.getResultClass())
-                        .add("resultString", dot.getResultString())
                         .add("time", dot.getTime())
                 );
             }
@@ -87,9 +88,9 @@ public class DotsResource {
             System.out.println(result);
 
             return ResponseUtils.accessResponseWithEntity(200, result);
-        } catch (ClassCastException e) {
+        } catch (JsonParsingException e){
             return ResponseUtils.accessResponse(400);
-        } catch (JDBCException e){
+        } catch (DBException e){
             return ResponseUtils.accessResponse(503);
         }
     }

@@ -1,8 +1,9 @@
 package database;
 
+import exceptions.DBException;
+import jakarta.persistence.NoResultException;
 import model.Dot;
 import model.User;
-import org.hibernate.JDBCException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -18,7 +19,7 @@ public class DotBean {
     Transaction transaction = null;
     private final SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
-    public boolean addDot(Double x, Double y, Double r, User user)throws JDBCException{
+    public boolean addDot(Double x, Double y, Double r, User user)throws DBException{
         Dot dot = new Dot(x, y, r, user);
         dot.setResult(isInArea(dot));
         Date d = new Date();
@@ -26,13 +27,15 @@ public class DotBean {
         return addDotToDB(dot);
     }
 
-    private boolean addDotToDB(Dot dot) throws JDBCException {
+    private boolean addDotToDB(Dot dot) throws DBException {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.persist(dot);
             transaction.commit();
             System.out.println("добавили точку в бд");
             return true;
+        } catch (NullPointerException e){
+            throw new DBException();
         } catch (Exception e){
             //if(transaction != null) transaction.rollback();
             e.printStackTrace();
@@ -41,17 +44,20 @@ public class DotBean {
         }
     }
 
-    public List<Dot> getDotsByUser(User user)throws JDBCException{
-        List<Dot> dots = new ArrayList<>();
+    public List<Dot> getDotsByUser(User user)throws DBException{
+        List<Dot> dots = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
             dots = session.createQuery("from Dot d where d.user = :user", Dot.class).setParameter("user", user).getResultList();
+        } catch (NullPointerException e) {
+            throw new DBException();
+        } catch (NoResultException e){
+            dots = null;
         } catch (Exception e){
             e.printStackTrace();
             if(transaction != null){
                 transaction.rollback();
             }
         }
-
         return dots;
     }
 

@@ -2,10 +2,12 @@ package com.example.lab4;
 
 import database.TokenUtils;
 import database.UserChecker;
+import exceptions.DBException;
 import jakarta.ejb.EJB;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
+import jakarta.json.stream.JsonParsingException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -25,7 +27,6 @@ public class UserResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response logIn(String json){
-       // if(json.length() > 0) {
         try {
             JsonReader jsonReader = Json.createReader(new StringReader(json));
             JsonObject object = jsonReader.readObject();
@@ -35,21 +36,16 @@ public class UserResource {
 
             String result;
             if (userChecker.login(login, password)) {
-                //System.out.println("login ok");
-                // result = ResponseUtils.successResult;
                 User user = userChecker.getUserByLogin(login);
                 result = "{ \"token\" : \"" + user.getToken() + "\" }";
             } else {
-                //System.out.println("login fail");
                 return ResponseUtils.accessResponse(401);
             }
             return ResponseUtils.accessResponseWithEntity(200, result);
-
-//        } else {
-//            return ResponseUtils.accessResponse(204);
-//        }
-        } catch (JDBCException e){
+        } catch (DBException e){
             return ResponseUtils.accessResponse(503);
+        } catch (JsonParsingException e){
+            return ResponseUtils.accessResponse(400);
         }
     }
 
@@ -68,8 +64,10 @@ public class UserResource {
             if (userChecker.logout(user)) status = 200;
             else status = 401;
             return ResponseUtils.accessResponse(status);
-        } catch (JDBCException e){
+        } catch (DBException e){
             return ResponseUtils.accessResponse(503);
+        } catch (JsonParsingException e){
+            return ResponseUtils.accessResponse(400);
         }
     }
 
@@ -78,23 +76,20 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registration(String json){
         try {
-            // if(json.length() > 0) {
             JsonReader jsonReader = Json.createReader(new StringReader(json));
             JsonObject object = jsonReader.readObject();
             String login = object.getString("login");
             String password = object.getString("password");
             jsonReader.close();
 
-
             if (userChecker.registration(login, password)) {
                 return ResponseUtils.accessResponse(200);
             } else {
                 return ResponseUtils.accessResponse(400);
             }
-//        } else {
-//            return ResponseUtils.accessResponse(204);
-//        }
-        } catch (JDBCException e){
+        } catch (JsonParsingException e){
+            return ResponseUtils.accessResponse(400);
+        } catch (DBException e){
             return ResponseUtils.accessResponse(503);
         }
     }
