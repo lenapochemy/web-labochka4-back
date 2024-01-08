@@ -3,19 +3,19 @@ package com.example.lab4;
 import database.DotChecker;
 import database.UserChecker;
 import exceptions.DBException;
+import exceptions.TokenException;
 import jakarta.ejb.EJB;
-import jakarta.json.*;
+import jakarta.json.Json;
+import jakarta.json.JsonArrayBuilder;
 import jakarta.json.stream.JsonParsingException;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.Dot;
 import model.User;
-import org.hibernate.JDBCException;
 
-import java.io.StringReader;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,47 +27,36 @@ public class DotsResource {
     @EJB
     UserChecker userChecker;
 
-    @Path("/newDot")
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response checkDot(String json){
+    public Response checkDot(Dot requestDot, @Context HttpHeaders headers){
         try {
-            JsonReader jsonReader = Json.createReader(new StringReader(json));
-            JsonObject object = jsonReader.readObject();
-            Double x = Double.parseDouble(object.getString("x"));
-            Double y = Double.parseDouble(object.getString("y"));
-            Double r = Double.parseDouble(object.getString("r"));
-            String token = object.getString("userToken");
-            jsonReader.close();
-            User user = userChecker.getUserByToken(token);
-            if (user == null) return ResponseUtils.accessResponse(403);
+            String token = headers.getHeaderString("Authorization");
 
-            if (dotChecker.addDot(x, y, r, user)) {
-                return ResponseUtils.accessResponse(200);
-            } else return ResponseUtils.accessResponse(503);
-        } catch (JsonParsingException e){
-            return ResponseUtils.accessResponse(400);
+            User user = userChecker.getUserFromToken(token);
+            Dot dot = new Dot(requestDot.getX(), requestDot.getY(), requestDot.getR(), user);
+            dotChecker.addDot(dot);
+            return Response.ok().build();
+
         } catch (DBException e){
-            return ResponseUtils.accessResponse(503);
+            return Response.status(503).build();
+        } catch (TokenException e){
+            return Response.status(403).build();
         }
     }
 
-    @Path("/allDots")
-    @POST
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDots(String json) {
+    public Response getDots(@Context HttpHeaders headers) {
         try {
-            if(json.isEmpty()) return ResponseUtils.accessResponse(400);
-            JsonReader jsonReader = Json.createReader(new StringReader(json));
-            JsonObject object = jsonReader.readObject();
-            String token = object.getString("userToken");
-            jsonReader.close();
-
-            User user = userChecker.getUserByToken(token);
-            if (user == null) return ResponseUtils.accessResponse(403);
+            String token = headers.getHeaderString("Authorization");
+            if(token.isEmpty()) return Response.status(400).build();
+            User user = userChecker.getUserFromToken(token);
+            if (user == null) return Response.status(403).build();
 
             List<Dot> dots = dotChecker.getDotsByUser(user);
-            if (dots == null) return ResponseUtils.accessResponse(204);
+            if (dots == null) return Response.status(204).build();
 
             dots = dots.stream().sorted(Comparator.comparing(Dot::getTime).reversed()).collect(Collectors.toList());
 
@@ -83,15 +72,15 @@ public class DotsResource {
                 );
             }
 
-            JsonArray value = arrayBuilder.build();
-            String result = value.toString();
-            System.out.println(result);
-
-            return ResponseUtils.accessResponseWithEntity(200, result);
+            String result = arrayBuilder.build().toString();
+//            System.out.println(result);
+            return Response.ok().entity(result).build();
         } catch (JsonParsingException e){
-            return ResponseUtils.accessResponse(400);
+            return Response.status(400).build();
         } catch (DBException e){
-            return ResponseUtils.accessResponse(503);
+            return Response.status(503).build();
+        } catch (TokenException e){
+            return Response.status(403).build();
         }
     }
 }

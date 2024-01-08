@@ -1,21 +1,24 @@
 package database;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.ejb.Stateless;
 import model.User;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Stateless
 public class TokenUtils {
 
     private final long expireTime = 30 * 60 * 1000; //30 минут
+    private final long expireTimeSeconds = expireTime / 1000;
     private final String tokenSecret = "rybezhka";
     private final Algorithm algorithm = Algorithm.HMAC256(tokenSecret);
-
-    public TokenUtils(){
-    }
 
     public String generateToken(User user){
         Date date = new Date(System.currentTimeMillis() + expireTime);
@@ -24,12 +27,36 @@ public class TokenUtils {
         header.put("typ", "JWT");
         header.put("alg", "HS256");
 
-        String token = JWT.create()
+        return JWT.create()
                 .withHeader(header)
                 .withClaim("login", user.getLogin())
                 .withExpiresAt(date)
                 .sign(algorithm);
-        return token;
+    }
+
+    public boolean verifyToken(String token){
+        try {
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .acceptExpiresAt(expireTimeSeconds)
+                    .build();
+
+            DecodedJWT decodedJWT = verifier.verify(token);
+            return true;
+        } catch (JWTVerificationException e){
+            return false;
+        }
+    }
+
+    public String decodeToken(String token){
+        DecodedJWT decodedJWT = JWT.decode(token);
+//        JWTVerifier verifier = JWT.require(algorithm)
+//                .acceptExpiresAt(expireTimeSeconds)
+//                .build();
+//        DecodedJWT decodedJWT = verifier.verify(token);
+
+//        System.out.println("claims: " + decodedJWT.getClaims());
+        String badLogin = decodedJWT.getClaim("login").toString(); //getClaim возвращает с кавычками
+        return badLogin.substring(1, badLogin.length()-1);
     }
 
 

@@ -9,7 +9,6 @@ import org.hibernate.Transaction;
 
 import jakarta.ejb.Stateful;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,30 +16,30 @@ import java.util.List;
 public class DotBean {
 
     Transaction transaction = null;
-    private final SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public boolean addDot(Double x, Double y, Double r, User user)throws DBException{
-        Dot dot = new Dot(x, y, r, user);
+    public void addDot(Dot dot)throws DBException{
         dot.setResult(isInArea(dot));
         Date d = new Date();
         dot.setTime(formatter.format(d));
-        return addDotToDB(dot);
+        addDotToDB(dot);
     }
 
-    private boolean addDotToDB(Dot dot) throws DBException {
+    private void addDotToDB(Dot dot) throws DBException {
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             session.persist(dot);
             transaction.commit();
             System.out.println("добавили точку в бд");
-            return true;
         } catch (NullPointerException e){
+            if(transaction != null) transaction.rollback();
+            System.out.println("не добавили точку в бд");
             throw new DBException();
         } catch (Exception e){
-            //if(transaction != null) transaction.rollback();
+            if(transaction != null) transaction.rollback();
             e.printStackTrace();
             System.out.println("не добавили точку в бд");
-            return false;
+            throw new DBException();
         }
     }
 
@@ -54,9 +53,6 @@ public class DotBean {
             dots = null;
         } catch (Exception e){
             e.printStackTrace();
-            if(transaction != null){
-                transaction.rollback();
-            }
         }
         return dots;
     }

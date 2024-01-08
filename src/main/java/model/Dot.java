@@ -8,13 +8,9 @@ public class Dot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "x")
     private Double x;
-    @Column(name = "y")
     private Double y;
-    @Column(name = "r")
     private Double r;
-    @Column(name = "result")
     private boolean result;
 
     @ManyToOne
@@ -91,4 +87,8 @@ public class Dot {
         this.id = id;
     }
 
+    @Override
+    public String toString(){
+        return "id: " + id + " x: " + x + " y: " + y + " r: " + r + " time: " + time + " result: " + result;
+    }
 }

@@ -1,6 +1,7 @@
 package database;
 
 import exceptions.DBException;
+import exceptions.TokenException;
 import jakarta.ejb.Stateful;
 import model.User;
 
@@ -11,47 +12,33 @@ public class UserChecker {
     @EJB
     private UserBean userBean;
     private User currentUser = null;
-    TokenUtils tokenUtils = new TokenUtils();
+    @EJB
+    TokenUtils tokenUtils;
 
-    public boolean registration(String login, String password) throws DBException {
-        if(userBean.checkLogin(login)) return false;
-
-        User user = userBean.addUser(login, password);
-      //  System.out.println("user.login = " + user.getLogin());
+    public boolean registration(User user) throws DBException {
+        if(userBean.checkLogin(user.getLogin())) return false;
+        userBean.addUser(user);
         return true;
     }
 
-    public boolean login(String login, String password) throws DBException{
-            //if(!userBean.checkLogin(login)) return false;
-            if (userBean.checkUser(login, password)) {
-                currentUser = userBean.findUserByLogin(login);
+    public String login(User badUser) throws DBException{
+
+            if (userBean.checkUser(badUser)) {
+                currentUser = userBean.getCurrentUser();
                 String token = tokenUtils.generateToken(currentUser);
-                currentUser.setToken(token);
-                userBean.updateUser(currentUser);
-                //System.out.println("currentUser = " +currentUser.getLogin());
-                return true;
-            } else return false;
+                return token;
+            } else return null;
 
     }
 
 
-    public boolean logout(User user) throws DBException{
-        //if(currentUser == null) return false;
-        user.setToken(null);
-        userBean.updateUser(user);
-//        System.out.println("currentUser = null");
-        return true;
+    public User getUserFromToken(String token) throws TokenException, DBException {
+        if(token.isEmpty()) throw  new TokenException();
+        if(tokenUtils.verifyToken(token)){
+            String login = tokenUtils.decodeToken(token);
+            return userBean.findUserByLogin(login);
+
+        } else throw new TokenException();
     }
 
-    public User getUserByLogin(String login) throws DBException{
-        return userBean.findUserByLogin(login);
-    }
-
-    public User getUserByToken(String token) throws DBException{
-        return userBean.findUserByToken(token);
-    }
-
-//    public User getCurrentUser() {
-//        return currentUser;
-//    }
 }
