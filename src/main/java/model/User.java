@@ -58,7 +58,9 @@ public class User {
     public void setDots(List<Dot> dots) {
         this.dots = dots;
     }
-
+    public void setId(int id){
+        this.id = id;
+    }
     public void setLogin(String login) {
         this.login = login;
     }

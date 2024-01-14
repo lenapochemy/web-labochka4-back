@@ -29,7 +29,8 @@ public class TokenUtils {
 
         return JWT.create()
                 .withHeader(header)
-                .withClaim("login", user.getLogin())
+//                .withClaim("login", user.getLogin())
+                .withClaim("id", user.getId())
                 .withExpiresAt(date)
                 .sign(algorithm);
     }
@@ -47,16 +48,17 @@ public class TokenUtils {
         }
     }
 
-    public String decodeToken(String token){
+    public User decodeToken(String token){
         DecodedJWT decodedJWT = JWT.decode(token);
-//        JWTVerifier verifier = JWT.require(algorithm)
-//                .acceptExpiresAt(expireTimeSeconds)
-//                .build();
-//        DecodedJWT decodedJWT = verifier.verify(token);
 
-//        System.out.println("claims: " + decodedJWT.getClaims());
-        String badLogin = decodedJWT.getClaim("login").toString(); //getClaim возвращает с кавычками
-        return badLogin.substring(1, badLogin.length()-1);
+//        String badLogin = decodedJWT.getClaim("login").asString(); //getClaim возвращает с кавычками
+//       System.out.println(badLogin);
+//        String login = badLogin.substring(1, badLogin.length()-1);
+        Integer id = decodedJWT.getClaim("id").asInt();
+        User user = new User();
+//        user.setLogin(login);
+        user.setId(id);
+        return user;
     }
 
 

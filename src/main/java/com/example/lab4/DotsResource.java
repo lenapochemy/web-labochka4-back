@@ -32,8 +32,10 @@ public class DotsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkDot(Dot requestDot, @Context HttpHeaders headers){
         try {
+            System.out.println("\u001B[36m" + "запрос на новую точку" + "\u001B[0m");
             String token = headers.getHeaderString("Authorization");
-
+            if(requestDot == null || token == null || token.isEmpty() )
+                return Response.status(400).build();
             User user = userChecker.getUserFromToken(token);
             Dot dot = new Dot(requestDot.getX(), requestDot.getY(), requestDot.getR(), user);
             dotChecker.addDot(dot);
@@ -50,8 +52,9 @@ public class DotsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDots(@Context HttpHeaders headers) {
         try {
+            System.out.println("\u001B[36m" + "запрос на получение точек" + "\u001B[0m");
             String token = headers.getHeaderString("Authorization");
-            if(token.isEmpty()) return Response.status(400).build();
+            if(token == null || token.isEmpty()) return Response.status(400).build();
             User user = userChecker.getUserFromToken(token);
             if (user == null) return Response.status(403).build();
 

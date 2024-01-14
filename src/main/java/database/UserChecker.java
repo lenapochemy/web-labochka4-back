@@ -35,8 +35,8 @@ public class UserChecker {
     public User getUserFromToken(String token) throws TokenException, DBException {
         if(token.isEmpty()) throw  new TokenException();
         if(tokenUtils.verifyToken(token)){
-            String login = tokenUtils.decodeToken(token);
-            return userBean.findUserByLogin(login);
+            return tokenUtils.decodeToken(token);
+//            return userBean.findUserByLogin(login);
 
         } else throw new TokenException();
     }

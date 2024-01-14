@@ -23,6 +23,8 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response logIn(User user){
         try {
+            System.out.println("\u001B[36m" + "запрос на вход" + "\u001B[0m");
+            if(user == null) return Response.status(400).build();
             String token = userChecker.login(user);
             if(token != null){
                 String result = "{ \"token\" : \"" + token + "\" }";
@@ -41,6 +43,8 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registration(User user){
         try {
+            System.out.println("\u001B[36m" + "запрос на регистрацию" + "\u001B[0m");
+            if(user == null) return Response.status(400).build();
             if (userChecker.registration(user)) {
                 return Response.ok().build();
             } else {

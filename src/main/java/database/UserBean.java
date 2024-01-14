@@ -38,7 +38,6 @@ public class UserBean {
         User user;
         try(Session session = HibernateUtil.getSessionFactory().openSession()){
             user = session.createQuery("from User u where u.login = :login", User.class).setParameter("login", login).getSingleResult();
-//            System.out.println("достали из бд: " + user.getLogin() + " " + user.getPassword());
         } catch (NoResultException r) {
             user = null;
         } catch (Exception e){
